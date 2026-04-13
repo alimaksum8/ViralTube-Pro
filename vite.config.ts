@@ -9,6 +9,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  define: {
+    'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY),
+  },
   // Base public path when served in production.
   // Set to './' for relative paths if hosting in a subfolder or for robustness on Vercel.
   base: './',

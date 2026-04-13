@@ -109,6 +109,7 @@ export default function App() {
   const [result, setResult] = useState<YouTubeContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<{topic: string, date: string}[]>([]);
+  const isApiKeyMissing = !process.env.GEMINI_API_KEY;
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('viraltube_history');
@@ -152,12 +153,24 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-4">
+          {isApiKeyMissing && (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+              <AlertCircle className="w-3 h-3" />
+              API Key Missing
+            </div>
+          )}
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Live Trends Active</span>
           </div>
         </div>
       </nav>
+
+      {isApiKeyMissing && (
+        <div className="bg-amber-500 text-white px-6 py-2 text-center text-[10px] font-black uppercase tracking-[0.2em]">
+          ⚠️ Gemini API Key is missing. Please set GEMINI_API_KEY in the Settings menu to enable AI features.
+        </div>
+      )}
 
       <main className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
