@@ -40,13 +40,12 @@ export const generateYouTubeContent = async (topic: string, countryCode: string,
     Language: Indonesian (Bahasa Indonesia).
   `;
 
-  let response;
-  try {
-    response = await ai.models.generateContent({
+  const generateContent = async (useGrounding: boolean) => {
+    return await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
-        tools: [{ googleSearch: {} }],
+        tools: useGrounding ? [{ googleSearch: {} }] : [],
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -74,12 +73,27 @@ export const generateYouTubeContent = async (topic: string, countryCode: string,
         }
       }
     });
+  };
+
+  let response;
+  try {
+    // First attempt with grounding
+    response = await generateContent(true);
   } catch (apiError: any) {
-    console.error("Gemini API Error:", apiError);
+    console.error("Gemini API Error (Attempt 1 - Grounding):", apiError);
+    
+    // If quota error, retry WITHOUT grounding as a fallback
     if (apiError.message?.includes("429") || apiError.message?.includes("RESOURCE_EXHAUSTED")) {
-      throw new Error("QUOTA_EXCEEDED: Kuota API Gemini Anda telah habis. Silakan periksa paket penagihan Anda di Google AI Studio.");
+      console.warn("Quota exceeded for Grounding. Retrying without Google Search...");
+      try {
+        response = await generateContent(false);
+      } catch (fallbackError: any) {
+        console.error("Gemini API Error (Attempt 2 - Fallback):", fallbackError);
+        throw new Error("QUOTA_EXCEEDED: Kuota API Gemini Anda telah habis (termasuk batas harian gratis). Silakan periksa paket penagihan Anda.");
+      }
+    } else {
+      throw new Error("Gagal menghubungi AI. Silakan coba lagi nanti.");
     }
-    throw new Error("Gagal menghubungi AI. Silakan coba lagi nanti.");
   }
 
   try {

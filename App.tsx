@@ -367,8 +367,16 @@ export default function App() {
                       <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-rose-600" /> Platform Interest Index
                       </h3>
-                      <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
-                        <Clock className="w-3 h-3" /> Updated Just Now
+                      <div className="text-[10px] font-bold text-slate-400 flex items-center gap-3">
+                        {result.groundingSources && result.groundingSources.length === 0 && (
+                          <div className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                            <AlertCircle className="w-3 h-3" />
+                            <span>Safe Mode</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3 h-3" /> Updated Just Now
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
