@@ -40,38 +40,47 @@ export const generateYouTubeContent = async (topic: string, countryCode: string,
     Language: Indonesian (Bahasa Indonesia).
   `;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-    config: {
-      tools: [{ googleSearch: {} }],
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          titles: { type: Type.ARRAY, items: { type: Type.STRING } },
-          titlePercentages: { type: Type.ARRAY, items: { type: Type.NUMBER } },
-          youtubeTrendingScores: { type: Type.ARRAY, items: { type: Type.NUMBER } },
-          description: { type: Type.STRING },
-          platformTags: { type: Type.STRING },
-          metadataTags: { type: Type.STRING },
-          platformScores: {
-            type: Type.OBJECT,
-            properties: {
-              youtube: { type: Type.NUMBER },
-              deepseek: { type: Type.NUMBER },
-              google: { type: Type.NUMBER },
-              duckduckgo: { type: Type.NUMBER },
-              tiktok: { type: Type.NUMBER },
-              snackvideo: { type :Type.NUMBER }
-            },
-            required: ["youtube", "deepseek", "google", "duckduckgo", "tiktok", "snackvideo"]
-          }
-        },
-        required: ["titles", "titlePercentages", "youtubeTrendingScores", "description", "platformTags", "metadataTags", "platformScores"]
+  let response;
+  try {
+    response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            titles: { type: Type.ARRAY, items: { type: Type.STRING } },
+            titlePercentages: { type: Type.ARRAY, items: { type: Type.NUMBER } },
+            youtubeTrendingScores: { type: Type.ARRAY, items: { type: Type.NUMBER } },
+            description: { type: Type.STRING },
+            platformTags: { type: Type.STRING },
+            metadataTags: { type: Type.STRING },
+            platformScores: {
+              type: Type.OBJECT,
+              properties: {
+                youtube: { type: Type.NUMBER },
+                deepseek: { type: Type.NUMBER },
+                google: { type: Type.NUMBER },
+                duckduckgo: { type: Type.NUMBER },
+                tiktok: { type: Type.NUMBER },
+                snackvideo: { type :Type.NUMBER }
+              },
+              required: ["youtube", "deepseek", "google", "duckduckgo", "tiktok", "snackvideo"]
+            }
+          },
+          required: ["titles", "titlePercentages", "youtubeTrendingScores", "description", "platformTags", "metadataTags", "platformScores"]
+        }
       }
+    });
+  } catch (apiError: any) {
+    console.error("Gemini API Error:", apiError);
+    if (apiError.message?.includes("429") || apiError.message?.includes("RESOURCE_EXHAUSTED")) {
+      throw new Error("QUOTA_EXCEEDED: Kuota API Gemini Anda telah habis. Silakan periksa paket penagihan Anda di Google AI Studio.");
     }
-  });
+    throw new Error("Gagal menghubungi AI. Silakan coba lagi nanti.");
+  }
 
   try {
     const content = JSON.parse(response.text || '{}') as YouTubeContent;

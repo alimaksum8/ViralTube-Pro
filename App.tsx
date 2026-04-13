@@ -289,10 +289,27 @@ export default function App() {
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-3 text-rose-700"
+                className={cn(
+                  "p-4 border rounded-2xl flex items-start gap-3",
+                  error.startsWith("QUOTA_EXCEEDED") 
+                    ? "bg-amber-50 border-amber-100 text-amber-700" 
+                    : "bg-rose-50 border-rose-100 text-rose-700"
+                )}
               >
                 <AlertCircle className="w-5 h-5 shrink-0" />
-                <p className="text-xs font-bold">{error}</p>
+                <div className="space-y-2">
+                  <p className="text-xs font-bold">{error.replace("QUOTA_EXCEEDED: ", "")}</p>
+                  {error.startsWith("QUOTA_EXCEEDED") && (
+                    <a 
+                      href="https://aistudio.google.com/app/plan_and_billing" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-4 hover:text-amber-900 transition-colors"
+                    >
+                      Cek Dashboard Quota →
+                    </a>
+                  )}
+                </div>
               </motion.div>
             )}
           </div>
